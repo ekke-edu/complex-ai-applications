@@ -1,0 +1,16 @@
+// .devcontainer/devcontainer.json (Részlet)
+{
+    "name": "AI-Course-FastAPI",
+    "image": "mcr.microsoft.com/devcontainers/python:3.11",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.black-formatter"
+            ]
+        }
+    }
+}
