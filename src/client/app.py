@@ -1,7 +1,6 @@
 import streamlit as st
 import requests
 
-# A FastAPI backend URL-je (alapértelmezett DevContainer beállítás)
 API_BASE_URL = "http://127.0.0.1:8000"
 
 st.set_page_config(page_title="MI RAG Rendszer",
@@ -9,11 +8,9 @@ st.set_page_config(page_title="MI RAG Rendszer",
 
 st.title("🤖 MI Kurzus - Tudásbázis és RAG")
 
-# Felhasználói felület két fülre bontása
 tab1, tab2, tab3 = st.tabs(
     ["📚 Dokumentum Feltöltése", "💬 Kérdezés a rendszertől", "🗂️ Adatbázis tartalma"])
 
-# --- 1. FÜL: Dokumentum feltöltése ---
 with tab1:
     st.header("Új ismeret betáplálása")
     doc_text = st.text_area(
@@ -39,7 +36,6 @@ with tab1:
                     st.error(
                         "❌ Nem tudok csatlakozni a FastAPI backendhez. Biztosan elindítottad az Uvicornt?")
 
-# --- 2. FÜL: RAG Keresés ---
 with tab2:
     st.header("Tudásalapú Kérdezz-Felelek")
     user_query = st.text_input(
@@ -62,7 +58,6 @@ with tab2:
                         st.markdown("### 🤖 MI Válasza:")
                         st.write(data.get("llm_response"))
 
-                        # Hasznos didaktikai elem: mutassuk meg a kontextust is!
                         with st.expander("🔍 Kulisszatitkok: Ebből a kontextusból dolgozott a modell"):
                             st.write(data.get("retrieved_context"))
                     else:
@@ -70,7 +65,6 @@ with tab2:
                 except requests.exceptions.ConnectionError:
                     st.error("❌ Nem tudok csatlakozni a backendhez.")
 
-# --- 3. FÜL: Adatbázis megtekintése ---
 with tab3:
     st.header("Feltöltött dokumentumok listája")
     if st.button("Frissítés"):

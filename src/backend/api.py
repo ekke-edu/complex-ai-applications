@@ -24,8 +24,6 @@ app = FastAPI(lifespan=lifespan, title="RAG, FastAPI és ChromaDB példa", versi
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 collection = chroma_client.get_or_create_collection(name="kurzus_tudasbazis")
 
-# JAVÍTÁS: Az ID kikerült a bemeneti sémából, a felhasználónak csak a szöveget kell küldenie
-
 
 class DocumentInput(BaseModel):
     text: str
@@ -40,11 +38,9 @@ async def add_document(doc: DocumentInput, request: Request):
     """1. Lépés: Dokumentumok feltöltése és vektorizálása (Automatikus ID-val)"""
     client = request.app.state.gemini_client
 
-    # JAVÍTÁS: Automatikus, egyedi azonosító generálása a dokumentumnak
     doc_id = str(uuid.uuid4())
 
     try:
-        # JAVÍTÁS: Itt TISZTÁN a modell neve szerepel, "models/" előtag nélkül!
         response = await client.models.embed_content(
             model="gemini-embedding-001",
             contents=doc.text
@@ -52,14 +48,12 @@ async def add_document(doc: DocumentInput, request: Request):
 
         embedding = response.embeddings[0].values
 
-        # Mentés a ChromaDB-be a generált azonosítóval
         collection.add(
             embeddings=[embedding],
             documents=[doc.text],
             ids=[doc_id]
         )
 
-        # Visszaadjuk a generált ID-t is, hogy a felhasználó tudja, mi lett a rekord azonosítója
         return {
             "status": "ok",
             "doc_id": doc_id,
@@ -75,14 +69,12 @@ async def ask_rag(query: QueryInput, request: Request):
     client = request.app.state.gemini_client
 
     try:
-        # A. Kérdés vektorizálása ("models/" előtag nélkül!)
         query_response = await client.models.embed_content(
             model="gemini-embedding-001",
             contents=query.prompt
         )
         query_embedding = query_response.embeddings[0].values
 
-        # B. Keresés a ChromaDB-ben
         results = collection.query(
             query_embeddings=[query_embedding],
             n_results=2
@@ -93,7 +85,6 @@ async def ask_rag(query: QueryInput, request: Request):
         if not context:
             return {"response": "Nincs elegendő információ az adatbázisban a válaszhoz."}
 
-        # C. Prompt összeállítása a kontextussal
         augmented_prompt = f"""
         Válaszold meg a felhasználó kérdését a megadott kontextus alapján. 
         Ha a kontextus nem tartalmazza a választ, mondd meg, hogy nem tudod.
@@ -103,7 +94,6 @@ async def ask_rag(query: QueryInput, request: Request):
         Kérdés: {query.prompt}
         """
 
-        # D. Generálás az MI modellel
         response = await client.models.generate_content(
             model="gemini-3.7-flash",
             contents=augmented_prompt
@@ -121,14 +111,9 @@ async def ask_rag(query: QueryInput, request: Request):
 def list_documents():
     """Segédvégpont: A ChromaDB-ben tárolt dokumentumok kilistázása"""
     try:
-        # A .get() paraméterek nélkül a gyűjtemény (collection) összes elemét visszaadja
-        # (Figyelem: hatalmas adatbázisoknál ezt paginálni (limit/offset) kellene,
-        # de a mi kurzusunkhoz ez most tökéletes)
         results = collection.get()
 
-        # Formázzuk a kimenetet egy tiszta listává
         docs = []
-        # Ellenőrizzük, hogy vannak-e egyáltalán dokumentumok
         if results['ids']:
             for i in range(len(results['ids'])):
                 docs.append({
