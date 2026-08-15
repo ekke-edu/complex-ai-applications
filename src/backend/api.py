@@ -7,7 +7,11 @@ from google import genai
 from dotenv import load_dotenv
 import chromadb
 import uuid
-
+from motor.motor_asyncio import AsyncIOMotorClient
+import datetime
+from google.genai.errors import APIError
+from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import wait_exponential
 
 load_dotenv()
 
@@ -16,15 +20,25 @@ load_dotenv()
 async def lifespan(app: FastAPI):
     client = genai.Client()
     app.state.gemini_client = client.aio
+
+    mongo_client = AsyncIOMotorClient("mongodb://mongo:27017")
+    app.state.mongo_client = mongo_client
+    app.state.chat_collection = mongo_client["mi_kurzus"]["chat_history"]
+
     yield
+    mongo_client.close()
+
+
+class ChatInput(BaseModel):
+    session_id: str
+    prompt: str
+
 
 app = FastAPI(lifespan=lifespan, title="RAG, FastAPI és ChromaDB példa", version="1.0.0",
               description="Ez egy egyszerű példa a Retrieval-Augmented Generation (RAG) megvalósítására FastAPI és ChromaDB segítségével.")
 
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 collection = chroma_client.get_or_create_collection(name="kurzus_tudasbazis")
-
-# JAVÍTÁS: Az ID kikerült a bemeneti sémából, a felhasználónak csak a szöveget kell küldenie
 
 
 class DocumentInput(BaseModel):
@@ -40,11 +54,9 @@ async def add_document(doc: DocumentInput, request: Request):
     """1. Lépés: Dokumentumok feltöltése és vektorizálása (Automatikus ID-val)"""
     client = request.app.state.gemini_client
 
-    # JAVÍTÁS: Automatikus, egyedi azonosító generálása a dokumentumnak
     doc_id = str(uuid.uuid4())
 
     try:
-        # JAVÍTÁS: Itt TISZTÁN a modell neve szerepel, "models/" előtag nélkül!
         response = await client.models.embed_content(
             model="gemini-embedding-001",
             contents=doc.text
@@ -52,14 +64,12 @@ async def add_document(doc: DocumentInput, request: Request):
 
         embedding = response.embeddings[0].values
 
-        # Mentés a ChromaDB-be a generált azonosítóval
         collection.add(
             embeddings=[embedding],
             documents=[doc.text],
             ids=[doc_id]
         )
 
-        # Visszaadjuk a generált ID-t is, hogy a felhasználó tudja, mi lett a rekord azonosítója
         return {
             "status": "ok",
             "doc_id": doc_id,
@@ -75,14 +85,12 @@ async def ask_rag(query: QueryInput, request: Request):
     client = request.app.state.gemini_client
 
     try:
-        # A. Kérdés vektorizálása ("models/" előtag nélkül!)
         query_response = await client.models.embed_content(
             model="gemini-embedding-001",
             contents=query.prompt
         )
         query_embedding = query_response.embeddings[0].values
 
-        # B. Keresés a ChromaDB-ben
         results = collection.query(
             query_embeddings=[query_embedding],
             n_results=2
@@ -93,7 +101,6 @@ async def ask_rag(query: QueryInput, request: Request):
         if not context:
             return {"response": "Nincs elegendő információ az adatbázisban a válaszhoz."}
 
-        # C. Prompt összeállítása a kontextussal
         augmented_prompt = f"""
         Válaszold meg a felhasználó kérdését a megadott kontextus alapján. 
         Ha a kontextus nem tartalmazza a választ, mondd meg, hogy nem tudod.
@@ -103,7 +110,6 @@ async def ask_rag(query: QueryInput, request: Request):
         Kérdés: {query.prompt}
         """
 
-        # D. Generálás az MI modellel
         response = await client.models.generate_content(
             model="gemini-3.7-flash",
             contents=augmented_prompt
@@ -121,14 +127,9 @@ async def ask_rag(query: QueryInput, request: Request):
 def list_documents():
     """Segédvégpont: A ChromaDB-ben tárolt dokumentumok kilistázása"""
     try:
-        # A .get() paraméterek nélkül a gyűjtemény (collection) összes elemét visszaadja
-        # (Figyelem: hatalmas adatbázisoknál ezt paginálni (limit/offset) kellene,
-        # de a mi kurzusunkhoz ez most tökéletes)
         results = collection.get()
 
-        # Formázzuk a kimenetet egy tiszta listává
         docs = []
-        # Ellenőrizzük, hogy vannak-e egyáltalán dokumentumok
         if results['ids']:
             for i in range(len(results['ids'])):
                 docs.append({
@@ -147,3 +148,51 @@ def list_documents():
 @app.get("/", include_in_schema=False)
 def redirect_to_docs():
     return RedirectResponse(url="/docs")
+
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=2, min=2, max=10))
+@app.post("/chat")
+async def chat_with_memory(chat_input: ChatInput, request: Request):
+    """3. Lépés: Állapottartó beszélgetés memóriával"""
+    gemini_client = request.app.state.gemini_client
+    collection = request.app.state.chat_collection
+
+    try:
+        cursor = collection.find(
+            {"session_id": chat_input.session_id}).sort("timestamp", 1)
+        history_docs = await cursor.to_list(length=100)
+
+        chat_history = []
+        for doc in history_docs:
+            chat_history.append(
+                {"role": doc["role"], "parts": [{"text": doc["content"]}]})
+
+        chat_session = gemini_client.chats.create(
+            model="gemini-3.7-flash",
+            history=chat_history
+        )
+
+        response = await chat_session.send_message(chat_input.prompt)
+
+        now = datetime.datetime.utcnow()
+        await collection.insert_many([
+            {
+                "session_id": chat_input.session_id,
+                "role": "user",
+                "content": chat_input.prompt,
+                "timestamp": now
+            },
+            {
+                "session_id": chat_input.session_id,
+                "role": "model",
+                "content": response.text,
+                "timestamp": now + datetime.timedelta(milliseconds=1)
+            }
+        ])
+
+        return {
+            "session_id": chat_input.session_id,
+            "response": response.text
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
