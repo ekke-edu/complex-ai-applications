@@ -83,7 +83,7 @@ Nyisd meg a böngészőben a dokumentációs felületet:
 http://localhost:8000/docs
 ```
 
-Itt közvetlenül tudsz kéréseket küldeni a végpontra.
+> Itt közvetlenül tudsz kéréseket küldeni a végpontra.
 
 ## Példa cURL parancs
 
