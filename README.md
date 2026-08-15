@@ -1,117 +1,84 @@
 # Komplex MI alkalmazások fejlesztése
+Ebben a repóban egy modern, "State-of-the-Art" (SOTA) mesterséges intelligencia alkalmazás alapjait építjük fel. 
 
-Ez a projekt egy FastAPI alapú API, amely a Google Gemini modellek segítségével generál szöveget egy `POST /generate` végpontból.
+A projekt célja, hogy egy valós, skálázható szoftverarchitektúrát hozzunk létre, amely egy FastAPI backendből és egy Streamlit frontendből áll.
 
-## Első lépések
+---
 
-A projekt használata előtt készítsd el a környezeti változókat a saját API kulcsodhoz.
+##  RAG és Vektoradatbázisok
 
-1. Hozz létre egy `.env` fájlt a projekt gyökérkönyvtárában.
-2. Add hozzá a Gemini API kulcsodat:
+Mielőtt belevágunk a kódolásba, fontos megérteni a projekt lelkét adó technológiákat. A modern Nagy Nyelvi Modellek (LLM-ek, mint a GPT-4 vagy a Gemini) lenyűgözőek, de van két komoly hibájuk:
+1. **Hallucinálnak:** Ha nem tudják a választ, hajlamosak hihetően hangzó, de hamis információkat kitalálni.
+2. **Nincs friss/privát tudásuk:** Nem látnak bele a vállalatod belső dokumentumaiba, vagy az egyetemi szabályzatokba.
 
+Erre a problémára a iparági standard megoldás a **RAG (Retrieval-Augmented Generation)**.
+
+### Mi az a Vektoradatbázis és az Embedding?
+Ahhoz, hogy a gép "megértse" a szöveget, át kell alakítanunk azt számokká. Ezt a folyamatot hívjuk **beágyazásnak (embedding)**. Egy speciális MI modell a szövegeket többdimenziós térbeli pontokká (vektorokká) alakítja. 
+* Ha két mondat jelentése hasonló (pl. "Kutya ugat" és "Ebgondolat"), a szoftveres térben a vektoraik nagyon közel lesznek egymáshoz.
+* A **vektoradatbázis** (a mi esetünkben a `ChromaDB`) arra van optimalizálva, hogy pillanatok alatt megtalálja a térben egymáshoz legközelebb eső (leginkább releváns) vektorokat.
+
+### Hogyan működik a RAG folyamat?
+A RAG két fő lépésből áll, amelyeket az API-nk is leképez:
+1. **Betáplálás (Ingestion):** A dokumentumainkat feldaraboljuk, embedding modellt használva vektorizáljuk, majd elmentjük a vektoradatbázisba.
+2. **Kérdezés (Retrieval & Generation):** 
+   * A felhasználó felteszi a kérdését.
+   * A kérdést is vektorizáljuk.
+   * Megkeressük a vektoradatbázisban a kérdéshez leginkább hasonló 2-3 bekezdést (Keresés/Retrieval).
+   * Ezt a kigyűjtött, releváns kontextust átadjuk az LLM-nek a kérdéssel együtt, és megkérjük: *"Kizárólag a megadott kontextus alapján válaszold meg a kérdést!"* (Kiterjesztett Generálás/Augmented Generation).
+
+---
+
+## Technológiai Stack
+
+A projekt a legmodernebb ipari standardokra épül:
+* **Környezet:** Docker DevContainer (Garantálja, hogy minden csapattagnál ugyanúgy fusson a kód).
+* **Backend:** `FastAPI` (Aszinkron, gyors, automatikus dokumentációval rendelkező API).
+* **Frontend:** `Streamlit` (Gyors UI prototípus-fejlesztés Pythonban).
+* **Vektoradatbázis:** `ChromaDB` (Lokális, pehelysúlyú adatbázis).
+* **MI Integráció:** `google-genai` (A legújabb hivatalos SDK a Gemini modellekhez).
+
+---
+
+## Fejlesztői Környezet Indítása
+
+### 1. Előfeltételek és Beállítások
+Győződj meg róla, hogy a VS Code-ban a DevContainer sikeresen felépült.
+Létre kell hoznod egy `.env` nevű fájlt a projekt gyökerében, amely tartalmazza a Google API kulcsodat:
 ```env
-GEMINI_API_KEY=your_google_gemini_api_key_here
+GEMINI_API_KEY=ide_masold_a_sajat_kulcsod
 ```
 
-> Fontos: a `.env` fájlt NE commitold a Git repository-ba, mert a projekt `.gitignore` már kizárja ezt a fájlt.
+### 2. A Szolgáltatások Futtatása (A Makefile használata)
+A projekt tartalmaz egy Makefile-t, amely leegyszerűsíti a szolgáltatások indítását. Ne feledd: a backendet és a frontendet két külön terminálablakban kell futtatnod!
 
-## Előfeltételek
-
-- Python 3.10+
-- pip
-- Google Gemini API kulcs
-
-## Telepítés
-
+A Backend API indítása:
+Nyiss egy terminált, és add ki az alábbi parancsot. Ez elindítja a FastAPI szervert a http://localhost:8000 címen.
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+make run-api
 ```
 
-## Futtatás
+> (Tipp: Nyisd meg a http://localhost:8000/docs oldalt a Swagger UI API dokumentáció eléréséhez, alapból átnavigál a /docs-ra ha csak a http://localhost:8000 címet ütöd be)
 
-A projekt futtatásához a legkönnyebb mód a `Makefile` használata:
-
+#### A Frontend UI indítása:
+Nyiss egy ÚJ terminálablakot (a VS Code-ban a + ikonnal), és indítsd el a felhasználói felületet:
 ```bash
-make run
+make run-app
 ```
+> Ez automatikusan megnyitja a böngészőben a Streamlit alkalmazást (jellemzően a http://localhost:8501 címen).
 
-Vagy közvetlenül:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+### Project struktúra
 ```
-
-Miután elindult, az API dokumentáció itt érhető el:
-
-- http://localhost:8000/docs
-- http://localhost:8000/redoc
-
-## Használat
-
-### 1. Generálás kérés
-
-A fő endpoint:
-
-```http
-POST /generate
+/
+├── src/
+│   ├── backend/          
+│   │   ├── __init__.py
+│   │   └── api.py        # A FastAPI végpontok (a RAG logika)
+│   └── frontend/
+│       ├── __init__.py
+│       └── app.py        # A Streamlit felhasználói felület
+├── chroma_db/            # Ide menti a rendszer a vektorokat (automatikusan létrejön)
+├── requirements.txt      # A projekt függőségeinek listája
+├── Makefile              # Parancs-gyűjtemény a könnyű futtatáshoz
+└── .env                  # Környezeti változók (NE KÜLDD BE GITHUB-RA!)
 ```
-
-Request body például:
-
-```json
-{
-  "prompt": "Írj egy rövid összefoglalót a mesterséges intelligenciáról.",
-  "model": "gemini-3.7-flash"
-}
-```
-
-Válasz:
-
-```json
-{
-  "text": "A mesterséges intelligencia olyan technológiák összessége,..."
-}
-```
-
-### 2. Swagger UI
-
-Nyisd meg a böngészőben a dokumentációs felületet:
-
-```text
-http://localhost:8000/docs
-```
-
-Itt közvetlenül tudsz kéréseket küldeni a végpontra.
-
-## Példa cURL parancs
-
-```bash
-curl -X POST "http://localhost:8000/generate" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prompt": "Írj egy rövid, barátságos üzenetet a projekt kezdéséhez.",
-    "model": "gemini-3.7-flash"
-  }'
-```
-
-## Hibakeresés
-
-Ha hibaüzenetet kapsz, ellenőrizd, hogy:
-
-- a `.env` fájl létezik,
-- a `GEMINI_API_KEY` helyes,
-- a Google Gemini API hozzáférés aktiválva van,
-- az alkalmazás fut a projekt gyökérkönyvtárából.
-
-Ha a kulcs nincs megadva, a Gemini kliens nem tud kapcsolódni a szolgáltatáshoz.
-
-## Fájlok áttekintése
-
-- `main.py`: FastAPI alkalmazás és a `/generate` végpont
-- `requirements.txt`: Python függőségek
-- `.env`: helyi környezeti változók (nem kerül a Gitbe)
-- `Makefile`: egyszerű futtatási parancsok
-
-
