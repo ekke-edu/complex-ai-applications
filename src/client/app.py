@@ -223,24 +223,34 @@ with tab5:
 
                                 if source not in added_nodes:
                                     nodes.append(
-                                        Node(id=source, label=source, size=400, color="#4CAF50"))
+                                        Node(id=source, label=source, size=25, color="#4CAF50"))
                                     added_nodes.add(source)
                                 if target not in added_nodes:
                                     nodes.append(
-                                        Node(id=target, label=target, size=400, color="#2196F3"))
+                                        Node(id=target, label=target, size=25, color="#2196F3"))
                                     added_nodes.add(target)
 
                                 edges.append(
                                     Edge(source=source, label=relation, target=target, color="#FF9800"))
 
-                            config = Config(width=700,
-                                            height=500,
+                            config = Config(width="100%",
+                                            height=700,
                                             directed=True,
-                                            physics=True,
                                             hierarchical=False,
                                             nodeHighlightBehavior=True,
                                             highlightColor="#F7A7A6",
-                                            collapsible=False)
+                                            collapsible=False,
+                                            link={'labelProperty': 'label',
+                                                  'renderLabel': True},
+                                            physics={
+                                                "barnesHut": {
+                                                    "gravitationalConstant": -30000,
+                                                    "centralGravity": 0.3,
+                                                    "springLength": 250,
+                                                    "springConstant": 0.05,
+                                                    "avoidOverlap": 1
+                                                }
+                                            })
 
                             st.markdown("### 🕸️ Vizuális Tudásgráf")
                             return_value = agraph(nodes=nodes,
