@@ -14,6 +14,8 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from tenacity import wait_exponential
 import io
 from PIL import Image
+import json
+from neo4j import GraphDatabase, AsyncGraphDatabase
 
 load_dotenv()
 
@@ -27,8 +29,14 @@ async def lifespan(app: FastAPI):
     app.state.mongo_client = mongo_client
     app.state.chat_collection = mongo_client["mi_kurzus"]["chat_history"]
 
+    neo4j_driver = AsyncGraphDatabase.driver(
+        "bolt://neo4j:7687", auth=("neo4j", "password123"))
+    app.state.neo4j_driver = neo4j_driver
+
     yield
+
     mongo_client.close()
+    await neo4j_driver.close()
 
 
 class ChatInput(BaseModel):
@@ -241,5 +249,68 @@ async def chat_with_image(
             "response": response.text,
             "filename": file.filename
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class GraphDocumentInput(BaseModel):
+    text: str
+
+
+@app.post("/extract_graph")
+async def extract_graph(doc: GraphDocumentInput, request: Request):
+    """5. Lépés: Gráf alapú Tudáskinyerés (GraphRAG)"""
+    gemini_client = request.app.state.gemini_client
+    neo4j_driver = request.app.state.neo4j_driver
+
+    extraction_prompt = f"""
+    Az alábbi szövegből nyerj ki entitásokat (személyek, helyszínek, technológiák, fogalmak) és a köztük lévő logikai vagy cselekvési kapcsolatokat. 
+    A kimeneted KIZÁRÓLAG egy érvényes JSON tömb (array) legyen, semmi más szöveg.
+    A JSON tömb minden eleme egy objektum legyen ezzel a struktúrával:
+    {{
+        "source": "Entitás 1 neve",
+        "source_label": "Entitás 1 típusa (pl. Person, Technology, Concept)",
+        "target": "Entitás 2 neve",
+        "target_label": "Entitás 2 típusa",
+        "relationship": "KAPCSOLAT_TÍPUSA (Csupa nagybetűvel, pl. HASZNÁLJA, FELESÉGE, RÉSZE)"
+    }}
+
+    Szöveg:
+    {doc.text}
+    """
+
+    try:
+        response = await gemini_client.models.generate_content(
+            model="gemini-3.5-flash",
+            contents=extraction_prompt
+        )
+
+        raw_text = response.text.strip()
+        if raw_text.startswith("```json"):
+            raw_text = raw_text[7:-3]
+        elif raw_text.startswith("```"):
+            raw_text = raw_text[3:-3]
+
+        relations = json.loads(raw_text.strip())
+
+        async with neo4j_driver.session() as session:
+            for rel in relations:
+                query = f"""
+                MERGE (a:`{rel['source_label']}` {{name: $source_name}})
+                MERGE (b:`{rel['target_label']}` {{name: $target_name}})
+                MERGE (a)-[r:`{rel['relationship']}`]->(b)
+                """
+                await session.run(
+                    query,
+                    source_name=rel["source"],
+                    target_name=rel["target"]
+                )
+
+        return {
+            "status": "ok",
+            "message": f"{len(relations)} reláció sikeresen kinyerve és elmentve a gráfba.",
+            "extracted_data": relations
+        }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

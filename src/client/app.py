@@ -1,6 +1,8 @@
 import uuid
 import streamlit as st
 import requests
+from streamlit_agraph import agraph, Node, Edge, Config
+
 
 API_BASE_URL = "http://127.0.0.1:8000"
 
@@ -9,8 +11,13 @@ st.set_page_config(page_title="MI RAG Rendszer",
 
 st.title("Chat memory RAG rendszer MongoDB-vel")
 
-tab1, tab2, tab3, tab4 = st.tabs(
-    ["📚 Dokumentum Feltöltés", "💬 Chat Memóriával", "🗂️ Adatbázis", "👁️ Gépi Látás"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "📚 Dokumentum Feltöltés",
+    "💬 Chat Memóriával",
+    "🗂️ Adatbázis",
+    "👁️ Gépi Látás",
+    "🕸️ Tudásgráf"
+])
 
 with tab1:
     st.header("Új ismeret betáplálása")
@@ -177,5 +184,75 @@ with tab4:
                             "A modell szerverei jelenleg leterheltek. Kérlek próbáld újra!")
                     else:
                         st.error(f"Hiba a szerveren: {response.text}")
+                except Exception as e:
+                    st.error(f"❌ Kapcsolódási hiba: {e}")
+
+with tab5:
+    st.header("🕸️ Tudásgráf Építő és Megjelenítő")
+    st.write("Másolj be egy szöveget, és a Gemini kinyeri belőle az entitásokat, majd azonnal kirajzoljuk a gráfot!")
+
+    graph_text = st.text_area("Szöveg a gráf építéséhez:", height=150,
+                              placeholder="Pl.: Harry Potter a Roxfortban tanul, amit Albus Dumbledore vezet. Dumbledore barátja Minerva McGalagony.")
+
+    if st.button("Relációk Kinyerése és Rajzolás 🚀"):
+        if graph_text.strip() == "":
+            st.warning("Kérlek, írj be valamilyen szöveget!")
+        else:
+            with st.spinner("Szöveg elemzése és gráf építése..."):
+                try:
+                    response = requests.post(
+                        f"{API_BASE_URL}/extract_graph",
+                        json={"text": graph_text}
+                    )
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        st.success(f"✅ {data.get('message')}")
+
+                        extracted_data = data.get("extracted_data", [])
+
+                        if extracted_data:
+                            nodes = []
+                            edges = []
+                            added_nodes = set()
+
+                            for rel in extracted_data:
+                                source = rel.get("source")
+                                target = rel.get("target")
+                                relation = rel.get("relationship")
+
+                                if source not in added_nodes:
+                                    nodes.append(
+                                        Node(id=source, label=source, size=400, color="#4CAF50"))
+                                    added_nodes.add(source)
+                                if target not in added_nodes:
+                                    nodes.append(
+                                        Node(id=target, label=target, size=400, color="#2196F3"))
+                                    added_nodes.add(target)
+
+                                edges.append(
+                                    Edge(source=source, label=relation, target=target, color="#FF9800"))
+
+                            config = Config(width=700,
+                                            height=500,
+                                            directed=True,
+                                            physics=True,
+                                            hierarchical=False,
+                                            nodeHighlightBehavior=True,
+                                            highlightColor="#F7A7A6",
+                                            collapsible=False)
+
+                            st.markdown("### 🕸️ Vizuális Tudásgráf")
+                            return_value = agraph(nodes=nodes,
+                                                  edges=edges,
+                                                  config=config)
+
+                            with st.expander("Nyers adatok (JSON) megtekintése"):
+                                st.table(extracted_data)
+                        else:
+                            st.info(
+                                "A modell nem talált egyértelmű kapcsolatokat a szövegben.")
+                    else:
+                        st.error(f"Hiba a szerver oldalon: {response.text}")
                 except Exception as e:
                     st.error(f"❌ Kapcsolódási hiba: {e}")
