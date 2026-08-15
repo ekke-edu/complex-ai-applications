@@ -16,6 +16,7 @@ import io
 from PIL import Image
 import json
 from neo4j import GraphDatabase, AsyncGraphDatabase
+from prometheus_fastapi_instrumentator import Instrumentator
 
 load_dotenv()
 
@@ -46,7 +47,7 @@ class ChatInput(BaseModel):
 
 app = FastAPI(lifespan=lifespan, title="RAG, FastAPI és ChromaDB példa", version="1.0.0",
               description="Ez egy egyszerű példa a Retrieval-Augmented Generation (RAG) megvalósítására FastAPI és ChromaDB segítségével.")
-
+Instrumentator().instrument(app).expose(app)
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 collection = chroma_client.get_or_create_collection(name="kurzus_tudasbazis")
 
