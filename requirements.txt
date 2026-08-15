@@ -17,3 +17,6 @@ python-dotenv>=1.0.1     # Környezeti változók (.env fájl) kezelése az API 
 
 # === ADATBÁZIS (NoSQL) ===
 motor>=3.4.0             # Aszinkron MongoDB driver a chathistory tárolásához
+
+# === GRÁFADATBÁZIS (Neo4j) ===
+neo4j>=5.23.1             # Hivatalos driver a GraphRAG relációk kezeléséhez
