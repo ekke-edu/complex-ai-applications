@@ -2,6 +2,7 @@
 fastapi>=0.115.0         # Modern, gyors webes keretrendszer az API végpontok megírásához
 uvicorn>=0.30.0          # Villámgyors ASGI szerver a FastAPI alkalmazás futtatásához
 pydantic>=2.8.0          # Adatvalidációs és típusellenőrző könyvtár (a FastAPI alapja)
+tenacity>=0.20.0          # Aszinkron retry mechanizmus a külső API hívásokhoz
 
 # === AI & VEKTOR ADATBÁZIS ===
 google-genai>=0.1.0      # A hivatalos, modern SDK a Google Gemini modellek kezeléséhez
@@ -13,3 +14,6 @@ requests>=2.32.0         # Klasszikus HTTP könyvtár külső weboldalak és API
 
 # === KONFIGURÁCIÓ ===
 python-dotenv>=1.0.1     # Környezeti változók (.env fájl) kezelése az API kulcsok védelmében
+
+# === ADATBÁZIS (NoSQL) ===
+motor>=3.4.0             # Aszinkron MongoDB driver a chathistory tárolásához
