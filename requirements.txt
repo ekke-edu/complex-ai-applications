@@ -21,3 +21,6 @@ motor>=3.4.0             # Aszinkron MongoDB driver a chathistory tárolásához
 # === GRÁFADATBÁZIS (Neo4j) ===
 neo4j>=5.23.1             # Hivatalos driver a GraphRAG relációk kezeléséhez
 streamlit-agraph==0.0.45 # Streamlit komponens a gráfok vizualizációjához
+
+# === MLOPS & OBSERVABILITY ===
+prometheus-fastapi-instrumentator>=7.0.0
