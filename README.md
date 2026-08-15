@@ -26,7 +26,7 @@ Ahhoz, hogy a gép emlékezzen a beszélgetés fonalára, bevezettünk egy **Mon
 
 A projekt a legmodernebb ipari standardokra (Docker Compose) épül:
 * **Környezet:** Docker DevContainer (Python App + MongoDB konténerek közös hálózaton).
-* **Backend:** `FastAPI` (Aszinkron, gyors API) és `Motor` (Aszinkron MongoDB driver).
+* **Backend:** `FastAPI` (Aszinkron API), `Motor` (Aszinkron MongoDB driver) és `Pillow` (Memórián belüli képkezelés).
 * **Frontend:** `Streamlit` (Modern, Python-alapú chat UI).
 * **Adatbázisok:** `ChromaDB` (vektoroknak) és `MongoDB` (munkameneteknek és chat logoknak).
 * **MI Integráció:** Hivatalos `google-genai` SDK.
@@ -70,6 +70,32 @@ make run-app
 
 > Ez automatikusan megnyitja a böngészőben a Streamlit alkalmazást (jellemzően a http://localhost:8501 címen).
 
+### 3. Multimodális Gépi Látás (Vision)
+A rendszer képes képeket (számlákat, diagramokat, vizuális adatokat) fogadni és feldolgozni a Gemini 1.5 Flash modell segítségével, ami közvetlenül strukturált adatokat vagy elemzést generál a bináris fájlokból.
+
+###  Az Adatfolyam Vizualizációja (Multimodális Látvány)
+Az alábbi ábra bemutatja, hogyan utazik egy képes-szöveges kérés a kliensgéptől egészen az MI szerveréig és vissza:
+
+```mermaid
+sequenceDiagram
+    actor User as Felhasználó (Streamlit)
+    participant API as FastAPI Backend
+    participant Mongo as MongoDB
+    participant Gemini as Google Gemini API
+
+    User->>API: 1. POST /chat_with_image (Kép bytes + Kérdés text)
+    activate API
+    API->>API: 2. Kép memóriába konvertálása (PIL / io.BytesIO)
+    API->>Gemini: 3. generate_content([Kép, Kérdés])
+    activate Gemini
+    Gemini-->>API: 4. Elemzés / Válasz visszatérése
+    deactivate Gemini
+    API->>Mongo: 5. Kérés és Válasz aszinkron mentése (Chat History)
+    Mongo-->>API: Sikeres mentés (Ack)
+    API-->>User: 6. JSON válasz (Szöveg + Képfájl metaadat)
+    deactivate API
+    User->>User: 7. Frontend frissíti a UI-t (Új üzenet a chaten)
+```
 ## Project struktúra
 
 ```
@@ -87,3 +113,10 @@ make run-app
 ├── Makefile                  # Egyszerűsített parancsok futtatáshoz
 └── .env                      # API kulcsok (NE KÜLDD BE GITHUB-RA!)
 ```
+---
+
+## ⚠️ Ismert jelenségek (Hibatűrés)
+
+Mivel az alkalmazás élő felhőszolgáltatásokra (Google Gemini API) támaszkodik, előfordulhatnak terhelési tüskék a szervereiken. 
+* Ha a felületen `503 UNAVAILABLE` (Leterheltség) hibát kapsz: a Google szerverei ideiglenesen túlterheltek. Várj pár másodpercet és próbáld újra elküldeni az üzenetet.
+* Ha a feltöltött képnél a Streamlit figyelmeztetést dob, ellenőrizd, hogy a kiterjesztés szabványos `jpg`, `jpeg` vagy `png` formátumú-e, és mérete nem haladja meg a 20MB-ot.

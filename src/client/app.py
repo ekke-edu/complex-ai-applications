@@ -9,8 +9,8 @@ st.set_page_config(page_title="MI RAG Rendszer",
 
 st.title("Chat memory RAG rendszer MongoDB-vel")
 
-tab1, tab2, tab3 = st.tabs(
-    ["📚 Dokumentum Feltöltése", "💬 Kérdezés a rendszertől", "🗂️ Adatbázis tartalma"])
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["📚 Dokumentum Feltöltés", "💬 Chat Memóriával", "🗂️ Adatbázis", "👁️ Gépi Látás"])
 
 with tab1:
     st.header("Új ismeret betáplálása")
@@ -129,3 +129,53 @@ with tab2:
                             f"Hiba a szerver oldalon: {response.text}")
                 except Exception:
                     st.error("❌ Nem tudok csatlakozni a backendhez.")
+
+with tab4:
+    st.header("👁️ Számítógépes Látás (Vision)")
+    st.write("Tölts fel egy képet, és tedd fel a kérdésed! (Például: 'Írd le, mi van a képen', vagy 'Készíts JSON-t ebből a számlából')")
+
+    uploaded_file = st.file_uploader(
+        "Válassz egy képet...", type=["jpg", "jpeg", "png"])
+
+    if uploaded_file is not None:
+        st.image(uploaded_file, caption="Feltöltött kép",
+                 use_container_width=True)
+
+        vision_prompt = st.text_input(
+            "Mit szeretnél tudni a képről?", value="Röviden foglald össze, mi látható ezen a képen.")
+
+        if st.button("Kép Elemzése 🚀", type="primary"):
+            with st.spinner('A Gemini Vision elemzi a képet...'):
+                try:
+                    files = {
+                        "file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)
+                    }
+                    data = {
+                        "session_id": st.session_state.session_id,
+                        "prompt": vision_prompt
+                    }
+
+                    response = requests.post(
+                        f"{API_BASE_URL}/chat_with_image",
+                        files=files,
+                        data=data
+                    )
+
+                    if response.status_code == 200:
+                        res_data = response.json()
+                        st.success("Sikeres elemzés!")
+                        st.markdown("### Eredmény:")
+                        st.info(res_data.get("response"))
+
+                        st.session_state.chat_history.append(
+                            {"role": "user", "content": f"[Kép elemzése: {uploaded_file.name}] {vision_prompt}"})
+                        st.session_state.chat_history.append(
+                            {"role": "model", "content": res_data.get("response")})
+
+                    elif response.status_code == 503:
+                        st.warning(
+                            "A modell szerverei jelenleg leterheltek. Kérlek próbáld újra!")
+                    else:
+                        st.error(f"Hiba a szerveren: {response.text}")
+                except Exception as e:
+                    st.error(f"❌ Kapcsolódási hiba: {e}")

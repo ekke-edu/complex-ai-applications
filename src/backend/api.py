@@ -1,6 +1,6 @@
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from google import genai
@@ -12,6 +12,8 @@ import datetime
 from google.genai.errors import APIError
 from tenacity import retry, stop_after_attempt, wait_exponential
 from tenacity import wait_exponential
+import io
+from PIL import Image
 
 load_dotenv()
 
@@ -193,6 +195,51 @@ async def chat_with_memory(chat_input: ChatInput, request: Request):
         return {
             "session_id": chat_input.session_id,
             "response": response.text
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/chat_with_image")
+async def chat_with_image(
+    request: Request,
+    session_id: str = Form(...),
+    prompt: str = Form(...),
+    file: UploadFile = File(...)
+):
+    """4. Lépés: Kép alapú RAG / Látvány-elemzés"""
+    gemini_client = request.app.state.gemini_client
+    collection = request.app.state.chat_collection
+
+    try:
+        image_bytes = await file.read()
+        image = Image.open(io.BytesIO(image_bytes))
+
+        response = await gemini_client.models.generate_content(
+            model="gemini-3.5-flash",
+            contents=[image, prompt]
+        )
+
+        now = datetime.datetime.utcnow()
+        await collection.insert_many([
+            {
+                "session_id": session_id,
+                "role": "user",
+                "content": f"[Kép feltöltve: {file.filename}] - {prompt}",
+                "timestamp": now
+            },
+            {
+                "session_id": session_id,
+                "role": "model",
+                "content": response.text,
+                "timestamp": now + datetime.timedelta(milliseconds=1)
+            }
+        ])
+
+        return {
+            "session_id": session_id,
+            "response": response.text,
+            "filename": file.filename
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
