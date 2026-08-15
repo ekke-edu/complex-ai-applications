@@ -1,84 +1,89 @@
-# Komplex MI alkalmazások fejlesztése
-Ebben a repóban egy modern, "State-of-the-Art" (SOTA) mesterséges intelligencia alkalmazás alapjait építjük fel. 
+# RAG & Állapottartó Chat
 
-A projekt célja, hogy egy valós, skálázható szoftverarchitektúrát hozzunk létre, amely egy FastAPI backendből és egy Streamlit frontendből áll.
-
----
-
-##  RAG és Vektoradatbázisok
-
-Mielőtt belevágunk a kódolásba, fontos megérteni a projekt lelkét adó technológiákat. A modern Nagy Nyelvi Modellek (LLM-ek, mint a GPT-4 vagy a Gemini) lenyűgözőek, de van két komoly hibájuk:
-1. **Hallucinálnak:** Ha nem tudják a választ, hajlamosak hihetően hangzó, de hamis információkat kitalálni.
-2. **Nincs friss/privát tudásuk:** Nem látnak bele a vállalatod belső dokumentumaiba, vagy az egyetemi szabályzatokba.
-
-Erre a problémára a iparági standard megoldás a **RAG (Retrieval-Augmented Generation)**.
-
-### Mi az a Vektoradatbázis és az Embedding?
-Ahhoz, hogy a gép "megértse" a szöveget, át kell alakítanunk azt számokká. Ezt a folyamatot hívjuk **beágyazásnak (embedding)**. Egy speciális MI modell a szövegeket többdimenziós térbeli pontokká (vektorokká) alakítja. 
-* Ha két mondat jelentése hasonló (pl. "Kutya ugat" és "Ebgondolat"), a szoftveres térben a vektoraik nagyon közel lesznek egymáshoz.
-* A **vektoradatbázis** (a mi esetünkben a `ChromaDB`) arra van optimalizálva, hogy pillanatok alatt megtalálja a térben egymáshoz legközelebb eső (leginkább releváns) vektorokat.
-
-### Hogyan működik a RAG folyamat?
-A RAG két fő lépésből áll, amelyeket az API-nk is leképez:
-1. **Betáplálás (Ingestion):** A dokumentumainkat feldaraboljuk, embedding modellt használva vektorizáljuk, majd elmentjük a vektoradatbázisba.
-2. **Kérdezés (Retrieval & Generation):** 
-   * A felhasználó felteszi a kérdését.
-   * A kérdést is vektorizáljuk.
-   * Megkeressük a vektoradatbázisban a kérdéshez leginkább hasonló 2-3 bekezdést (Keresés/Retrieval).
-   * Ezt a kigyűjtött, releváns kontextust átadjuk az LLM-nek a kérdéssel együtt, és megkérjük: *"Kizárólag a megadott kontextus alapján válaszold meg a kérdést!"* (Kiterjesztett Generálás/Augmented Generation).
+A projekt célja, hogy a hagyományos "Jupyter Notebook" szintű kísérletezésen túllépve, egy valós, skálázható szoftverarchitektúrát hozzunk létre, amely egy FastAPI backendből, egy Streamlit frontendből, valamint több adatbázisból áll.
 
 ---
 
-## Technológiai Stack
+##  RAG és a "Memória"
 
-A projekt a legmodernebb ipari standardokra épül:
-* **Környezet:** Docker DevContainer (Garantálja, hogy minden csapattagnál ugyanúgy fusson a kód).
-* **Backend:** `FastAPI` (Aszinkron, gyors, automatikus dokumentációval rendelkező API).
-* **Frontend:** `Streamlit` (Gyors UI prototípus-fejlesztés Pythonban).
-* **Vektoradatbázis:** `ChromaDB` (Lokális, pehelysúlyú adatbázis).
-* **MI Integráció:** `google-genai` (A legújabb hivatalos SDK a Gemini modellekhez).
+A modern Nagy Nyelvi Modellek (LLM-ek, mint a Gemini) lenyűgözőek, de van két komoly kihívás velük kapcsolatban:
+1. **Nincs friss/privát tudásuk:** Nem látnak bele a vállalatod belső dokumentumaiba.
+2. **"Amnéziásak":** Minden HTTP kérést tiszta lappal kezdenek, nem emlékszenek az egy perccel ezelőtt feltett kérdésedre.
+
+Ezt a két problémát oldjuk meg az architektúránkkal:
+
+### 1. RAG (Retrieval-Augmented Generation) és Vektorok
+A saját dokumentumainkat vektorokká (számsorozatokká) alakítjuk az **Embedding** technológia segítségével, és egy **ChromaDB vektoradatbázisban** tároljuk. Amikor a felhasználó kérdez, a rendszer megkeresi a leginkább releváns bekezdéseket a térben, és ezt "puskaként" átadja a modellnek.
+
+### 2. Állapottartó (Stateful) Beszélgetés és NoSQL
+Ahhoz, hogy a gép emlékezzen a beszélgetés fonalára, bevezettünk egy **MongoDB (NoSQL) adatbázist**. 
+* **Miért NoSQL?** Az MI-vel folytatott beszélgetések (kiküldött promptok, kapott válaszok, metaadatok) természetes módon JSON/dokumentum formátumúak, amire a MongoDB tökéletes választás. A relációs adatbázisok (SQL) ehhez túl merevek lennének.
+* A rendszer generál egy `session_id`-t, és minden üzenetváltást letárol, így a következő kérdésnél a FastAPI a teljes beszélgetési előzményt fel tudja tölteni a modell memóriájába.
+
+---
+
+## Technológiai Stack és Architektúra
+
+A projekt a legmodernebb ipari standardokra (Docker Compose) épül:
+* **Környezet:** Docker DevContainer (Python App + MongoDB konténerek közös hálózaton).
+* **Backend:** `FastAPI` (Aszinkron, gyors API) és `Motor` (Aszinkron MongoDB driver).
+* **Frontend:** `Streamlit` (Modern, Python-alapú chat UI).
+* **Adatbázisok:** `ChromaDB` (vektoroknak) és `MongoDB` (munkameneteknek és chat logoknak).
+* **MI Integráció:** Hivatalos `google-genai` SDK.
 
 ---
 
 ## Fejlesztői Környezet Indítása
 
 ### 1. Előfeltételek és Beállítások
-Győződj meg róla, hogy a VS Code-ban a DevContainer sikeresen felépült.
-Létre kell hoznod egy `.env` nevű fájlt a projekt gyökerében, amely tartalmazza a Google API kulcsodat:
+Győződj meg róla, hogy a VS Code-ban a DevContainer felépült (a Docker Compose alapján). 
+Létre kell hoznod egy `.env` nevű fájlt a projekt gyökerében:
 ```env
 GEMINI_API_KEY=ide_masold_a_sajat_kulcsod
 ```
 
-### 2. A Szolgáltatások Futtatása (A Makefile használata)
-A projekt tartalmaz egy Makefile-t, amely leegyszerűsíti a szolgáltatások indítását. Ne feledd: a backendet és a frontendet két külön terminálablakban kell futtatnod!
+## 2. Csatlakozás a MongoDB-hez (VS Code Plugin)
+Nem kell vaktában kódolnod! A DevContainer tartalmaz egy hivatalos MongoDB kiterjesztést.
+
+Kattints a VS Code bal oldali sávjában a MongoDB (falevél) ikonra.
+
+Kattints az Add Connection gombra.
+
+A fenti parancssorba írd be: mongodb://mongo:27017 majd nyomj Entert.
+> (Megjegyzés: A Docker belső hálózata miatt a host nevünk mongo, nem pedig localhost!)
+
+## 3. A Szolgáltatások Futtatása (Makefile)
+A backendet és a frontendet két külön terminálablakban kell futtatnod!
 
 A Backend API indítása:
-Nyiss egy terminált, és add ki az alábbi parancsot. Ez elindítja a FastAPI szervert a http://localhost:8000 címen.
+Nyiss egy terminált, és add ki az alábbi parancsot (indul a `http://localhost:8000` címen).
 ```bash
 make run-api
 ```
 
-> (Tipp: Nyisd meg a http://localhost:8000/docs oldalt a Swagger UI API dokumentáció eléréséhez, alapból átnavigál a /docs-ra ha csak a http://localhost:8000 címet ütöd be)
+UI indítása:
+Nyiss egy ÚJ terminálablakot (a + ikonnal), és indítsd el a felhasználói felületet:
 
-#### A Frontend UI indítása:
-Nyiss egy ÚJ terminálablakot (a VS Code-ban a + ikonnal), és indítsd el a felhasználói felületet:
 ```bash
 make run-app
 ```
+
 > Ez automatikusan megnyitja a böngészőben a Streamlit alkalmazást (jellemzően a http://localhost:8501 címen).
 
-### Project struktúra
+## Project struktúra
+
 ```
 /
+├── .devcontainer/
+│   ├── devcontainer.json
+│   └── docker-compose.yml    # Itt van definiálva a Python és a MongoDB konténer
 ├── src/
 │   ├── backend/          
-│   │   ├── __init__.py
-│   │   └── api.py        # A FastAPI végpontok (a RAG logika)
+│   │   └── api.py            # FastAPI végpontok (RAG és Chat logika)
 │   └── frontend/
-│       ├── __init__.py
-│       └── app.py        # A Streamlit felhasználói felület
-├── chroma_db/            # Ide menti a rendszer a vektorokat (automatikusan létrejön)
-├── requirements.txt      # A projekt függőségeinek listája
-├── Makefile              # Parancs-gyűjtemény a könnyű futtatáshoz
-└── .env                  # Környezeti változók (NE KÜLDD BE GITHUB-RA!)
+│       └── app.py            # Streamlit UI (Feltöltés és Chat felület)
+├── chroma_db/                # Lokális vektoradatbázis (automatikusan létrejön)
+├── requirements.txt          # Függőségek (FastAPI, Streamlit, motor, chromadb, stb.)
+├── Makefile                  # Egyszerűsített parancsok futtatáshoz
+└── .env                      # API kulcsok (NE KÜLDD BE GITHUB-RA!)
 ```
