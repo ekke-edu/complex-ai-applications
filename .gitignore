@@ -1,1 +1,5 @@
 devcontainer-lock.json
+.env
+*notes*
+*_pycache_*
+settings.json
