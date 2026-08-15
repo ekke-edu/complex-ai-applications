@@ -1,5 +1,15 @@
-fastapi 
-uvicorn 
-pydantic
-google-genai 
-python-dotenv
+# === WEB BACKEND & API ===
+fastapi>=0.115.0         # Modern, gyors webes keretrendszer az API végpontok megírásához
+uvicorn>=0.30.0          # Villámgyors ASGI szerver a FastAPI alkalmazás futtatásához
+pydantic>=2.8.0          # Adatvalidációs és típusellenőrző könyvtár (a FastAPI alapja)
+
+# === AI & VEKTOR ADATBÁZIS ===
+google-genai>=0.1.0      # A hivatalos, modern SDK a Google Gemini modellek kezeléséhez
+chromadb>=0.5.0          # Vektor-adatbázis dokumentumok tárolásához és RAG-alapú kereséshez
+
+# === UI & KOMMUNIKÁCIÓ ===
+streamlit>=1.37.0        # Gyors frontend keretrendszer az MI alkalmazás webes felületéhez
+requests>=2.32.0         # Klasszikus HTTP könyvtár külső weboldalak és API-k meghívásához
+
+# === KONFIGURÁCIÓ ===
+python-dotenv>=1.0.1     # Környezeti változók (.env fájl) kezelése az API kulcsok védelmében
