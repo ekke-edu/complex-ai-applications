@@ -71,7 +71,7 @@ make run-app
 > Ez automatikusan megnyitja a böngészőben a Streamlit alkalmazást (jellemzően a http://localhost:8501 címen).
 
 ### 3. Multimodális Gépi Látás (Vision)
-A rendszer képes képeket (számlákat, diagramokat, vizuális adatokat) fogadni és feldolgozni a Gemini 1.5 Flash modell segítségével, ami közvetlenül strukturált adatokat vagy elemzést generál a bináris fájlokból.
+A rendszer képes képeket (számlákat, diagramokat, vizuális adatokat) fogadni és feldolgozni a Gemini 3.5 Flash modell segítségével, ami közvetlenül strukturált adatokat vagy elemzést generál a bináris fájlokból.
 
 ###  Az Adatfolyam Vizualizációja (Multimodális Látvány)
 Az alábbi ábra bemutatja, hogyan utazik egy képes-szöveges kérés a kliensgéptől egészen az MI szerveréig és vissza:
@@ -96,6 +96,17 @@ sequenceDiagram
     deactivate API
     User->>User: 7. Frontend frissíti a UI-t (Új üzenet a chaten)
 ```
+### 4. Tudásgráfok és GraphRAG (Neo4j)
+A vektorok jók a szemantikai hasonlóság keresésére, de a pontos relációk (pl. "Ki kinek a felettese?") megtalálásához hálózatokra van szükség. A bemeneti szövegekből az MI entitás-kapcsolat hármasokat (Triples) nyer ki, amelyeket egy **Neo4j gráfadatbázisban** tárolunk, a felületen pedig a `streamlit-agraph` segítségével vizuálisan, interaktívan is megjelenítünk.
+
+```mermaid
+graph LR
+    A[Nyers Szöveg] -->|API Kérés| B(Gemini 3.5 Flash)
+    B -->|Entitás Kinyerés| C{JSON Triples}
+    C -->|Relációk| D[(Neo4j Gráfadatbázis)]
+    C -->|Vizuális Render| E[Streamlit UI - Agraph]
+```
+
 ## Project struktúra
 
 ```
