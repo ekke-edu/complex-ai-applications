@@ -1,6 +1,6 @@
 # Komplex MI alkalmazások fejlesztése
 Ez a projekt egy modern, "State-of-the-Art" mikroszolgáltatás-alapú mesterséges intelligencia rendszert mutat be, amelyet lépésről lépésre, az alábbi fejlesztési fázisokon (`features`) keresztül építettem fel.
-
+További információ [itt](https://io.uni-eszterhazy.hu/downloadCourseInfo/101964)
 ---
 
 ## A Félév Ütemterve (Branch Agenda)
