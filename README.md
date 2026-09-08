@@ -16,3 +16,7 @@ A repository ágai a szoftverarchitektúra fokozatos bővülését követik:
 - **`feature/04_multimodal-vision`** – **Multimodális Látás:** Képek és vizuális dokumentumok közvetlen elemzése a modell segítségével.
 - **`feature/05_graph-rag-neo4j`** – **Tudásgráfok és GraphRAG:** Entitás-kapcsolat hármasok kinyerése és tárolása Neo4j gráfadatbázisban.
 - **`feature/06_mlops-docker-grafana`** – **Megfigyelhetőség (MLOps):** Valós idejű teljesítménymérés Prometheus metrikákkal és Grafana műszerfalakkal.
+
+## Licenc
+
+Ez a projekt az MIT Licenc alatt áll – a részletekért válaszd a [LICENSE](LICENSE) fájlt.
