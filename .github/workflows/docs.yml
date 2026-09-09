@@ -1,0 +1,14 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+      - 'mkdocs.yml'
+
+jobs:
+  call-central-workflow:
+    uses: ekke-edu/.github/.github/workflows/mkdocs-deploy.yml@main
