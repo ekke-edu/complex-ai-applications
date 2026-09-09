@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/01-api/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/01-api/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/01-api/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/02-rag/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/02-rag/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/02-rag/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/03-memory/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/03-memory/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/03-memory/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/04-vision/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/04-vision/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/04-vision/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/05-graph/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/05-graph/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/05-graph/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/06-mlops/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/06-mlops/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/06-mlops/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/en/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/"/>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/en/01-api/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/01-api/"/>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/01-api/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/en/02-rag/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/02-rag/"/>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/02-rag/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/en/03-memory/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/03-memory/"/>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/03-memory/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/en/04-vision/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/04-vision/"/>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/04-vision/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/en/05-graph/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/05-graph/"/>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/05-graph/"/>
+    </url>
+    <url>
+        <loc>https://ekke-edu.github.io/complex-ai-applications/en/06-mlops/</loc>
+        <lastmod>2026-09-09</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://ekke-edu.github.io/complex-ai-applications/en/06-mlops/"/>
+        <xhtml:link rel="alternate" hreflang="hu" href="https://ekke-edu.github.io/complex-ai-applications/06-mlops/"/>
+    </url>
+</urlset>
