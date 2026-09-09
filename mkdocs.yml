@@ -1,0 +1,49 @@
+site_name: Komplex MI alkalmazások fejlesztése
+site_description: FastAPI, RAG, MongoDB, Neo4j, MLOps kurzus dokumentáció
+site_url: https://ekke-edu.github.io/complex-ai-applications/
+
+theme: 
+  name: material
+  language: hu
+  features:
+    - navigation.tabs
+    - navigation.top
+
+extra: 
+  alternate:
+    - name: Magyar
+      link: /complex-ai-applications/
+      lang: hu
+    - name: English
+      link: /complex-ai-applications/en/
+      lang: en
+
+nav:
+  - Kezdőlap: index.md
+  - Alapozás és API: 01-api.md
+  - Vektoros RAG: 02-rag.md
+  - Állapottartó Memória: 03-memory.md
+  - Multimodális Látás: 04-vision.md
+  - GraphRAG (Neo4j): 05-graph.md
+  - MLOps: 06-mlops.md
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: hu
+          name: Magyar
+          default: true
+          build: true
+        - locale: en
+          name: English
+          build: true
+          nav_translations:
+            Kezdőlap: Home
+            Alapozás és API: API Basics
+            Vektoros RAG: Vector RAG
+            Állapottartó Memória: Stateful Memory
+            Multimodális Látás: Multimodal Vision
+            GraphRAG (Neo4j): GraphRAG (Neo4j)
+            MLOps: MLOps
