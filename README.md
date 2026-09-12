@@ -20,3 +20,8 @@ A repository ágai a szoftverarchitektúra fokozatos bővülését követik:
 ## Licenc
 
 Ez a projekt az MIT Licenc alatt áll – a részletekért válaszd a [LICENSE](LICENSE) fájlt.
+
+
+# Kiegészítés beadhoz
+
+Kész lett ✅
