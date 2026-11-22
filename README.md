@@ -19,7 +19,7 @@ A forrásokról, a licencről és a saját fejlesztésekről részletesen a CRED
 ### 📌 Összegzés a beadandó struktúrájához:
 Megjegyzés: Kép és videófeltöltés esetében a fájlméret nem haladhatja meg az 50 MB-t. Kép esetében a kiterjesztés JPG, JPEG vagy PNG a megengedett, míg videó esetében MP4 vagy MKV az elfogadott.
 1. modul: 3 funkcióból tevődik össze: 1. Lehetőség nyílik 3 kép feltöltésére, amit a Groq Qwen elemez. 2. A megadott szöveges leírás alapján a beküldött képből kivág egy kisebb részt 3. A "Depth Anything V2" használatával mélységtérképet generál az MI a beküldött kép alapján.
-2. modul
+2. modul: Waldo kereső. Lehetőség van saját kép feltöltésére, vagy a gyökérmappában találató waldo_puzzle.jpg, waldo_character.jpg, waldo_solution.jpg-n keresi meg Waldo-t. Működés: 3 modell versenyez egymással: Gemini 3.5, Groq Qwen 3.8, Nvidia Nemotron 3.5. Mindegyik modul megkapja először a szöveges promtot és megpróbálja megkeresni a képen Waldo-t, majd a második keresés előtt megkapja waldo_character.jpg képét és az alapján is megpróbálja még egyszer megkeresni.
 3. modul
 4. modul
 5. modul
