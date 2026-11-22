@@ -42,7 +42,7 @@ A projekt a legmodernebb ipari standardokra épül:
 * **Környezet**: Docker Compose (Python App + MongoDB konténerek közös hálózaton).
 * **Backend:** `FastAPI` (Aszinkron API), `Motor` (Aszinkron MongoDB driver) és `Pillow` (Memórián belüli képkezelés).
 * **Frontend:** `Streamlit` (Modern, Python-alapú chat UI).
-* **Adatbázis:** `MongoDB` (munkameneteknek és chat logoknak)
+* **Adatbázis:** `MongoDB` (munkameneteknek és chat logoknak): A számla és a nyugtakezelő modul használja a Mongo DB-t.
 * **MI Integráció:** `groq` Python SDK (`AsyncGroq` és Qwen multimodális modellek).
 * **Sakk-motor**: Stockfish: stockfishchess.org/download
 
