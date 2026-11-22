@@ -23,31 +23,13 @@ Megjegyzés: Kép és videófeltöltés esetében a fájlméret nem haladhatja m
 2. modul: Waldo kereső. Lehetőség van saját kép feltöltésére, vagy a gyökérmappában találató waldo_puzzle.jpg, waldo_character.jpg, waldo_solution.jpg-n keresi meg Waldo-t. Működés: 3 modell versenyez egymással: Gemini 3.5, Groq Qwen 3.8, Nvidia Nemotron 3.5. Mindegyik modul megkapja először a szöveges promtot és megpróbálja megkeresni a képen Waldo-t, majd a második keresés előtt megkapja waldo_character.jpg képét és az alapján is megpróbálja még egyszer megkeresni. Szerzői jogokra hivatkozva nem töltöm fel ebbe a nyilvános projektbe Waldo képeket.
 3. modul: Számla & Nyugta feldolgozó AI modul. 1. funkció: A Qroq elemzi a beküldött képet ha nem számla vagy nyugta visszajelzést kap a felhasználó. Ha számla vagy nyugta, akkor a dokumentumon lévő adatok egy részét MongoDB adatbázisba helyezi el.
    2. funkció: Az adatbázisban lévő adatokat elemzi és szöveges visszajelzést ad róla.
-5. modul
+5. modul: Sakk az AI-al. 1. funkció: egy sakk állást tartalmazó képet beküldve a Groq és a Gemini elemzi a képet és megadja, hogy melyik a legjobb lépés. 2. funkció: a Gemini és a Groq egymás ellen játszik a sakk szabályai szerint. 3. funkció a felhasználónak lehetősége van játszani a világ legerősebb sakkmotorjával, a Stockfish19, amit a Groq Qwen kommentál. Szükséges lépés: #stockfishchess.org/download a fájlokat le kell tölteni és el kell helyezni az alkalmazás gyökérkönyvtárában az /engines mappában és az indítófájlt (exe) át kell nevezni stockfish.exe-re a funkció használatához.
 6. modul
 ---
 
 # Komplex MI alkalmazások fejlesztése
 
 A projekt célja, hogy a hagyományos "Jupyter Notebook" szintű kísérletezésen túllépve, egy valós, skálázható szoftverarchitektúrát hozzunk létre, amely egy FastAPI backendből, egy Streamlit frontendből, valamint több adatbázisból áll.
-
----
-
-##  RAG és a "Memória"
-
-„A modern Nagy Nyelvi Modellek (LLM-ek, mint a Groq LPU-n futó Qwen modellek) lenyűgözőek, de van két komoly kihívás vele kapcsolatban:”
-1. **Nincs friss/privát tudásuk:** Nem látnak bele a vállalatod belső dokumentumaiba.
-2. **"Amnéziásak":** Minden HTTP kérést tiszta lappal kezdenek, nem emlékszenek az egy perccel ezelőtt feltett kérdésedre.
-
-Ezt a két problémát oldjuk meg az architektúránkkal:
-
-### 1. RAG (Retrieval-Augmented Generation) és Vektorok
-A saját dokumentumainkat vektorokká (számsorozatokká) alakítjuk az **Embedding** technológia segítségével, és egy **ChromaDB vektoradatbázisban** tároljuk. Amikor a felhasználó kérdez, a rendszer megkeresi a leginkább releváns bekezdéseket a térben, és ezt "puskaként" átadja a modellnek.
-
-### 2. Állapottartó (Stateful) Beszélgetés és NoSQL
-Ahhoz, hogy a gép emlékezzen a beszélgetés fonalára, bevezettünk egy **MongoDB (NoSQL) adatbázist**. 
-* **Miért NoSQL?** Az MI-vel folytatott beszélgetések (kiküldött promptok, kapott válaszok, metaadatok) természetes módon JSON/dokumentum formátumúak, amire a MongoDB tökéletes választás. A relációs adatbázisok (SQL) ehhez túl merevek lennének.
-* A rendszer generál egy `session_id`-t, és minden üzenetváltást letárol, így a következő kérdésnél a FastAPI a teljes beszélgetési előzményt fel tudja tölteni a modell memóriájába.
 
 ---
 
@@ -66,21 +48,12 @@ A projekt a legmodernebb ipari standardokra (Docker Compose) épül:
 
 ### 1. Előfeltételek és Beállítások
 
-A projekt futtatásához kétféle módszer közül választhatsz:
-
-### A) Docker-alapú futtatás (Ajánlott és leggyorsabb, indítószkript: `start.bat`)
-- **Docker Desktop**: Futnia kell a gépeden (ez automatikusan felhúzza és kezeli a MongoDB adatbázist a háttérben).
-- **Neo4j**: Gráfok kezelésénél lesz szükség.
-- **Python 3.10+**: A helyi szkriptekhez és a Streamlit frontendhez.
-- **Groq API Kulcs**: Szerezz be egyet a [Groq Console](https://console.groq.com/)-ról és írd be a .env fájlba.
-
-### B) Lokális futtatás (Docker nélkül, a `start.py` szkripttel)
+### Lokális futtatás (`start.py` szkripttel)
 - **MongoDB**: Helyileg telepítve kell lennie a gépeden (és futnia kell a `localhost:27017` porton).
-- **Neo4j**: Gráfok kezelésénél lesz szükség.
 - **Python 3.10+**: A helyi szkriptekhez és a Streamlit frontendhez. Pycharm használata esetében be kell állítani az interpretert és a külső könyvtárakat telepíteni kell(`pip install -r requirements.txt`).
 - **Groq API Kulcs**: Szerezz be egyet a [Groq Console](https://console.groq.com/)-ról és írd be a .env fájlba.
 
-```env
+```.env
 GROQ_API_KEY=gsk_saját_groq_kulcsod_ide
 ```
 
@@ -121,15 +94,8 @@ sequenceDiagram
 ```
 /
 ├── start.py                # Egységes indító szkript (Backend + Frontend)
-├── start.bat               # Docker indító szkriptje
-├── src/
-│   ├── __init__.py
-│   ├── backend/
-│   │   ├── __init__.py   
-│   │   └── api.py          # FastAPI végpontok (RAG, Chat és Vision logika)
-│   └── client/
-│       ├── __init__.py
-│       └── app.py          # Streamlit UI (Feltöltés, Chat és Waldo modul)
+├── backend/
+├── client/                  # Streamlit UI (Feltöltés, Chat és Waldo modul)       
 ├── chroma_db/              # Lokális vektoradatbázis (automatikusan létrejön)
 ├── uploads/                # Ide kerülnek a RAG-ba betöltött képek 
 ├── requirements.txt        # Függőségek (FastAPI, Streamlit, motor, chromadb, groq stb.)
