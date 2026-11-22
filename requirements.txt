@@ -15,7 +15,7 @@ numpy==2.5.4
 google-genai>=1.0.0
 openai>=1.50.0
 python-chess>=1.999
-opencv-python-headless>=4.8.0  # <--- Hozzáadva (videó és képfeldolgozáshoz a backendre)
+opencv-python-headless>=4.8.0
 transformers>=4.40.0
-torch>=2.0.0                    # <--- Hozzáadva (ha lokális AI modelleket is futtatsz, pl. Depth Anything)
+torch>=2.0.0
 imageio-ffmpeg
