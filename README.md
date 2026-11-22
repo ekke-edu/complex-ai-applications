@@ -19,12 +19,15 @@ A forrásokról, a licencről és a saját fejlesztésekről részletesen a CRED
 
 ### 📌 Összegzés a beadandó struktúrájához:
 Megjegyzés a feltöltésekhhez: Kép és videófeltöltés esetében a fájlméret nem haladhatja meg az 50 MB-t. Kép esetében a kiterjesztés JPG, JPEG vagy PNG a megengedett, míg videó esetében MP4 vagy MKV az elfogadott.
-1. modul: 3 funkcióból tevődik össze: 1. Lehetőség nyílik 3 kép feltöltésére, amit a Groq Qwen elemez. 2. A megadott szöveges leírás alapján a beküldött képből kivág egy kisebb részt 3. A "Depth Anything V2" használatával mélységtérképet generál az MI a beküldött kép alapján.
-2. modul: Waldo kereső. Lehetőség van saját kép feltöltésére, vagy a gyökérmappában találató waldo_puzzle.jpg, waldo_character.jpg, waldo_solution.jpg-n keresi meg Waldo-t. Működés: 3 modell versenyez egymással: Gemini 3.5, Groq Qwen 3.8, Nvidia Nemotron 3.5. Mindegyik modul megkapja először a szöveges promtot és megpróbálja megkeresni a képen Waldo-t, majd a második keresés előtt megkapja waldo_character.jpg képét és az alapján is megpróbálja még egyszer megkeresni. Szerzői jogokra hivatkozva nem töltöm fel ebbe a nyilvános projektbe Waldo képeket.
-3. modul: Számla & Nyugta feldolgozó AI modul. 1. funkció: A Qroq elemzi a beküldött képet ha nem számla vagy nyugta visszajelzést kap a felhasználó. Ha számla vagy nyugta, akkor a dokumentumon lévő adatok egy részét MongoDB adatbázisba helyezi el.
-   2. funkció: Az adatbázisban lévő adatokat elemzi és szöveges visszajelzést ad róla.
-5. modul: Sakk az AI-al. 1. funkció: egy sakk állást tartalmazó képet beküldve a Groq és a Gemini elemzi a képet és megadja, hogy melyik a legjobb lépés. 2. funkció: a Gemini és a Groq egymás ellen játszik a sakk szabályai szerint. 3. funkció a felhasználónak lehetősége van játszani a világ legerősebb sakkmotorjával, a Stockfish19, amit a Groq Qwen kommentál. Szükséges lépés: stockfishchess.org/download a fájlokat le kell tölteni és el kell helyezni az alkalmazás gyökérkönyvtárában az /engines mappában és az indítófájlt (exe) át kell nevezni stockfish.exe-re a funkció használatához.
-6. modul: Lehetőség van videók feltöltésére, a feltöltött videót elemzi a Groq. Mőködés: kiírja a videóban elhangzott szöveget és a videóból származó 3 db kép tartalmát leírja.
+* **1. modul:** 3 funkcióból tevődik össze: 1. Lehetőség nyílik 3 kép feltöltésére, amit a Groq Qwen elemez. 2. A megadott szöveges leírás alapján a beküldött képből kivág egy kisebb részt 3. A "Depth Anything V2" használatával mélységtérképet generál az MI a beküldött kép alapján.
+  
+* **2. modul:** Waldo kereső. Lehetőség van saját kép feltöltésére, vagy a gyökérmappában találató waldo_puzzle.jpg, waldo_character.jpg, waldo_solution.jpg-n keresi meg Waldo-t. Működés: 3 modell versenyez egymással: Gemini 3.5, Groq Qwen 3.8, Nvidia Nemotron 3.5. Mindegyik modul megkapja először a szöveges promtot és megpróbálja megkeresni a képen Waldo-t, majd a második keresés előtt megkapja waldo_character.jpg képét és az alapján is megpróbálja még egyszer megkeresni. Szerzői jogokra hivatkozva nem töltöm fel ebbe a nyilvános projektbe Waldo képeket.
+  
+* **3. modul:** Számla & Nyugta feldolgozó AI modul. 1. funkció: A Qroq elemzi a beküldött képet ha nem számla vagy nyugta visszajelzést kap a felhasználó. Ha számla vagy nyugta, akkor a dokumentumon lévő adatok egy részét MongoDB adatbázisba helyezi el. 2. funkció: Az adatbázisban lévő adatokat elemzi és szöveges visszajelzést ad róla.
+  
+* **4. modul:** Sakk az AI-al. 1. funkció: egy sakk állást tartalmazó képet beküldve a Groq és a Gemini elemzi a képet és megadja, hogy melyik a legjobb lépés. 2. funkció: a Gemini és a Groq egymás ellen játszik a sakk szabályai szerint. 3. funkció a felhasználónak lehetősége van játszani a világ legerősebb sakkmotorjával, a Stockfish19, amit a Groq Qwen kommentál. Szükséges lépés: stockfishchess.org/download a fájlokat le kell tölteni és el kell helyezni az alkalmazás gyökérkönyvtárában az /engines mappában és az indítófájlt (exe) át kell nevezni stockfish.exe-re a funkció használatához.
+  
+* **5. modul:** Lehetőség van videók feltöltésére, a feltöltött videót elemzi a Groq. Mőködés: kiírja a videóban elhangzott szöveget és a videóból származó 3 db kép tartalmát leírja.
 ---
 
 # Komplex MI alkalmazások fejlesztése
