@@ -23,7 +23,7 @@ Megjegyzés a feltöltésekhhez: Kép és videófeltöltés esetében a fájlmé
 2. modul: Waldo kereső. Lehetőség van saját kép feltöltésére, vagy a gyökérmappában találató waldo_puzzle.jpg, waldo_character.jpg, waldo_solution.jpg-n keresi meg Waldo-t. Működés: 3 modell versenyez egymással: Gemini 3.5, Groq Qwen 3.8, Nvidia Nemotron 3.5. Mindegyik modul megkapja először a szöveges promtot és megpróbálja megkeresni a képen Waldo-t, majd a második keresés előtt megkapja waldo_character.jpg képét és az alapján is megpróbálja még egyszer megkeresni. Szerzői jogokra hivatkozva nem töltöm fel ebbe a nyilvános projektbe Waldo képeket.
 3. modul: Számla & Nyugta feldolgozó AI modul. 1. funkció: A Qroq elemzi a beküldött képet ha nem számla vagy nyugta visszajelzést kap a felhasználó. Ha számla vagy nyugta, akkor a dokumentumon lévő adatok egy részét MongoDB adatbázisba helyezi el.
    2. funkció: Az adatbázisban lévő adatokat elemzi és szöveges visszajelzést ad róla.
-5. modul: Sakk az AI-al. 1. funkció: egy sakk állást tartalmazó képet beküldve a Groq és a Gemini elemzi a képet és megadja, hogy melyik a legjobb lépés. 2. funkció: a Gemini és a Groq egymás ellen játszik a sakk szabályai szerint. 3. funkció a felhasználónak lehetősége van játszani a világ legerősebb sakkmotorjával, a Stockfish19, amit a Groq Qwen kommentál. Szükséges lépés: #stockfishchess.org/download a fájlokat le kell tölteni és el kell helyezni az alkalmazás gyökérkönyvtárában az /engines mappában és az indítófájlt (exe) át kell nevezni stockfish.exe-re a funkció használatához.
+5. modul: Sakk az AI-al. 1. funkció: egy sakk állást tartalmazó képet beküldve a Groq és a Gemini elemzi a képet és megadja, hogy melyik a legjobb lépés. 2. funkció: a Gemini és a Groq egymás ellen játszik a sakk szabályai szerint. 3. funkció a felhasználónak lehetősége van játszani a világ legerősebb sakkmotorjával, a Stockfish19, amit a Groq Qwen kommentál. Szükséges lépés: stockfishchess.org/download a fájlokat le kell tölteni és el kell helyezni az alkalmazás gyökérkönyvtárában az /engines mappában és az indítófájlt (exe) át kell nevezni stockfish.exe-re a funkció használatához.
 6. modul: Lehetőség van videók feltöltésére, a feltöltött videót elemzi a Groq. Mőködés: kiírja a videóban elhangzott szöveget és a videóból származó 3 db kép tartalmát leírja.
 ---
 
@@ -35,12 +35,13 @@ A projekt célja, hogy a hagyományos "Jupyter Notebook" szintű kísérletezés
 
 ## Technológiai Stack és Architektúra
 
-A projekt a legmodernebb ipari standardokra (Docker Compose) épül:
+A projekt a legmodernebb ipari standardokra épül:
 * **Környezet**: Docker Compose (Python App + MongoDB konténerek közös hálózaton).
 * **Backend:** `FastAPI` (Aszinkron API), `Motor` (Aszinkron MongoDB driver) és `Pillow` (Memórián belüli képkezelés).
 * **Frontend:** `Streamlit` (Modern, Python-alapú chat UI).
-* **Adatbázisok:** `ChromaDB` (vektoroknak) és `MongoDB` (munkameneteknek és chat logoknak) + Neo4j a gráfok létrehozásához, szerkesztéséhez.
+* **Adatbázis:** `MongoDB` (munkameneteknek és chat logoknak)
 * **MI Integráció:** `groq` Python SDK (`AsyncGroq` és Qwen multimodális modellek).
+* **Sakk-motor**: Stockfish: stockfishchess.org/download
 
 ---
 
