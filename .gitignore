@@ -1,4 +1,0 @@
-devcontainer-lock.json
-.env
-chroma_db/*
-**/__pycache__/
