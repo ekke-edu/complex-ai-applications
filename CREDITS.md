@@ -1,4 +1,4 @@
-# Források, licenc és saját munka (Források és köszönetnyilvánítás)
+# Források, licenc és saját munka
 
 ## 1. Kiindulási sablon és licenc
 - **Eredeti sablon és MIT licenc:** `Copyright (c) 2026 Szilvási István Péter` (lásd a `LICENSE` fájlt).
@@ -8,6 +8,7 @@
 - **Tab 1 — 1. al-fül (Általános képelemzés):**
   - Többképes feltöltés (egyszerre legfeljebb 3 kép, képenként legfeljebb 50 MB méretkorláttal).
   - Groq Vision modellintegráció a korábbi megoldáshoz képest, fájlméret-ellenőrzéssel és hibakezeléssel.
+  - Módosítások a modulon: Kovács László
 
 ## 3. Saját fejlesztések
 - **Tab 1 — 2–3. al-fülek:** saját kialakítású/továbbfejlesztett funkciók és megoldások: Kovács László
