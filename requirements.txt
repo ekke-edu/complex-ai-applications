@@ -1,15 +1,21 @@
-fastapi>=0.115.0
+#stockfishchess.org/download (Stockfish 19)
+fastapi==0.162.1
 uvicorn>=0.30.0
 pydantic>=2.8.0
-tenacity>=0.20.0
+tenacity>=8.0.0
 python-multipart>=0.0.9
 groq>=0.11.0
-chromadb>=0.5.0
 streamlit>=1.37.0
 requests>=2.32.0
 pillow>=10.0.0
 python-dotenv>=1.0.1
 motor>=3.4.0
 starlette
-neo4j>=5.0.0
-streamlit-agraph>=0.0.45
+numpy==2.5.4
+google-genai>=1.0.0
+openai>=1.50.0
+python-chess>=1.999
+opencv-python-headless>=4.8.0  # <--- Hozzáadva (videó és képfeldolgozáshoz a backendre)
+transformers>=4.40.0
+torch>=2.0.0                    # <--- Hozzáadva (ha lokális AI modelleket is futtatsz, pl. Depth Anything)
+imageio-ffmpeg
