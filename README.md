@@ -18,13 +18,13 @@ A forrásokról, a licencről és a saját fejlesztésekről részletesen a CRED
 * **Major (Haladó szint):** Teljesen új funkció vagy alrendszer implementálása (például a WALDO finder modul felépítése).
 
 ### 📌 Összegzés a beadandó struktúrájához:
-Megjegyzés: Kép és videófeltöltés esetében a fájlméret nem haladhatja meg az 50 MB-t. Kép esetében a kiterjesztés JPG, JPEG vagy PNG a megengedett, míg videó esetében MP4 vagy MKV az elfogadott.
+Megjegyzés a feltöltésekhhez: Kép és videófeltöltés esetében a fájlméret nem haladhatja meg az 50 MB-t. Kép esetében a kiterjesztés JPG, JPEG vagy PNG a megengedett, míg videó esetében MP4 vagy MKV az elfogadott.
 1. modul: 3 funkcióból tevődik össze: 1. Lehetőség nyílik 3 kép feltöltésére, amit a Groq Qwen elemez. 2. A megadott szöveges leírás alapján a beküldött képből kivág egy kisebb részt 3. A "Depth Anything V2" használatával mélységtérképet generál az MI a beküldött kép alapján.
 2. modul: Waldo kereső. Lehetőség van saját kép feltöltésére, vagy a gyökérmappában találató waldo_puzzle.jpg, waldo_character.jpg, waldo_solution.jpg-n keresi meg Waldo-t. Működés: 3 modell versenyez egymással: Gemini 3.5, Groq Qwen 3.8, Nvidia Nemotron 3.5. Mindegyik modul megkapja először a szöveges promtot és megpróbálja megkeresni a képen Waldo-t, majd a második keresés előtt megkapja waldo_character.jpg képét és az alapján is megpróbálja még egyszer megkeresni. Szerzői jogokra hivatkozva nem töltöm fel ebbe a nyilvános projektbe Waldo képeket.
 3. modul: Számla & Nyugta feldolgozó AI modul. 1. funkció: A Qroq elemzi a beküldött képet ha nem számla vagy nyugta visszajelzést kap a felhasználó. Ha számla vagy nyugta, akkor a dokumentumon lévő adatok egy részét MongoDB adatbázisba helyezi el.
    2. funkció: Az adatbázisban lévő adatokat elemzi és szöveges visszajelzést ad róla.
 5. modul: Sakk az AI-al. 1. funkció: egy sakk állást tartalmazó képet beküldve a Groq és a Gemini elemzi a képet és megadja, hogy melyik a legjobb lépés. 2. funkció: a Gemini és a Groq egymás ellen játszik a sakk szabályai szerint. 3. funkció a felhasználónak lehetősége van játszani a világ legerősebb sakkmotorjával, a Stockfish19, amit a Groq Qwen kommentál. Szükséges lépés: #stockfishchess.org/download a fájlokat le kell tölteni és el kell helyezni az alkalmazás gyökérkönyvtárában az /engines mappában és az indítófájlt (exe) át kell nevezni stockfish.exe-re a funkció használatához.
-6. modul
+6. modul: Lehetőség van videók feltöltésére, a feltöltött videót elemzi a Groq. Mőködés: kiírja a videóban elhangzott szöveget és a videóból származó 3 db kép tartalmát leírja.
 ---
 
 # Komplex MI alkalmazások fejlesztése
@@ -52,16 +52,16 @@ A projekt a legmodernebb ipari standardokra (Docker Compose) épül:
 - **MongoDB**: Helyileg telepítve kell lennie a gépeden (és futnia kell a `localhost:27017` porton).
 - **Python 3.10+**: A helyi szkriptekhez és a Streamlit frontendhez. Pycharm használata esetében be kell állítani az interpretert és a külső könyvtárakat telepíteni kell(`pip install -r requirements.txt`).
 - **Groq API Kulcs**: Szerezz be egyet a [Groq Console](https://console.groq.com/)-ról és írd be a .env fájlba.
+- **További API Kulcsok**: Tekintsd meg az .env.example fájlt
 
+példa:
 ```.env
 GROQ_API_KEY=gsk_saját_groq_kulcsod_ide
 ```
 
-## 2. A Szolgáltatások Futtatása (`start.py` vagy `start.bat`)
-
-A programoz készült kettő darab indító szkript is.
+## 2. A Szolgáltatások Futtatása (`start.py`)
 **start.py**, amely egyszerre indítja a frontendet és a backendet az alkalmazás gyökérmappájában található. Ez automatikusan megnyitja a böngészőben a Streamlit alkalmazást (jellemzően a http://localhost:8501 címen). Az alkalmazás korlátlan működéséhez ekkor szükség van egy telepített MongoDB futtatáshoz is.
-**start.bat** futtatásához Docker futtatása szükséges.
+
 
 ### 3. Multimodális Gépi Látás (Vision)
 A rendszer képes képeket (számlákat, diagramokat, vizuális adatokat) fogadni és feldolgozni a Qwen modell segítségével, ami közvetlenül strukturált adatokat vagy elemzést generál a bináris fájlokból.
@@ -96,8 +96,6 @@ sequenceDiagram
 ├── start.py                # Egységes indító szkript (Backend + Frontend)
 ├── backend/
 ├── client/                  # Streamlit UI (Feltöltés, Chat és Waldo modul)       
-├── chroma_db/              # Lokális vektoradatbázis (automatikusan létrejön)
-├── uploads/                # Ide kerülnek a RAG-ba betöltött képek 
 ├── requirements.txt        # Függőségek (FastAPI, Streamlit, motor, chromadb, groq stb.)
 ├── docker-compose.yml
 ├── Dockerfile
